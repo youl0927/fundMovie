@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.review.mapper.ReviewRepleSQLMapper">
+
+	<insert id="reviewRepleInsert">
+	<![CDATA[
+		Insert INTO review_reple VALUES(
+			review_reple_seq.nextval,
+			#{movie_review_no},
+			#{user_no},
+			#{review_reple_content},
+			SYSDATE
+		)
+	]]>
+	</insert>
+	
+	<select id = "selectByReviewRepleAll"  resultType="com.bbq.fundmovie.vo.ReviewRepleVo">
+	<![CDATA[
+		Select * from review_reple where movie_review_no = #{movie_review_no}
+	]]>
+	</select>
+	
+	<delete id="deleteReviewRepleNo">
+		<![CDATA[
+		delete from review_reple where review_reple_no = #{review_reple_no}
+		]]>		
+	</delete>
+	
+
+</mapper>

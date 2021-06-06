@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.review.mapper.ReviewLikeSQLMapper">
+	
+	<insert id="reviewLikeInsert">
+	<![CDATA[
+	INSERT INTO review_like VALUES(
+ 		review_like_seq.nextval,
+ 		#{movie_review_no},
+		#{user_no},
+   		1,
+   		SYSDATE
+	)
+	]]>	
+	</insert>
+	
+	<select id="reviewMyLike" resultType="int">
+		<![CDATA[
+			select COUNT(*) from review_like
+			WHERE movie_review_no= #{movie_review_no} AND user_no = #{user_no}
+		]]>
+		
+	</select>
+	
+	<delete id="reviewLikeDelete">
+		<![CDATA[
+			DELETE FROM review_like
+			where movie_review_no = #{movie_review_no}
+			AND user_no = #{user_no}
+		]]>	
+	</delete>
+	
+	<select id="countLikeTotal" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) FROM review_like
+			where movie_review_no=#{no}
+			
+		]]>
+	</select>
+	
+
+</mapper>

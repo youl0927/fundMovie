@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.freeboard.mapper.FreeboardRepleSQLMapper">
+
+	<insert id="insert">
+		<![CDATA[
+			INSERT INTO Freeboard_Reple VALUES(
+	    	freeboard_Reple_seq.nextval,
+	    	#{freeboard_no},
+	    	#{user_no},
+	    	#{reple_freeboard},
+	    	SYSDATE
+			)	
+		]]>	
+	</insert>
+
+	<select id="selectByFreeboardNo" resultType="com.bbq.fundmovie.vo.FreeboardRepleVo">
+		<![CDATA[
+		SELECT * FROM Freeboard_Reple MF_user WHERE freeboard_no = #{freeboard_no}
+		ORDER BY freeboard_reple_no ASC
+		]]>				
+	</select>
+	
+	<delete id="deleteRepleByNo">
+		<![CDATA[
+			DELETE FROM Freeboard_Reple
+			WHERE freeboard_reple_no = #{freeboard_reple_no}
+		]]>
+	</delete>
+	
+	<select id="selectRepleTotal" resultType="int">
+		<![CDATA[
+		SELECT COUNT (*) FROM Freeboard_Reple where freeboard_no=#{freeboard_no}
+		]]>
+	</select>
+	
+</mapper>

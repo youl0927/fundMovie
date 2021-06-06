@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.freeboard.mapper.FreeboardImageSQLMapper">
+
+	<insert id="insert">
+	<![CDATA[
+		INSERT INTO Freeboard_Image VALUES(
+		    Freeboard_Image_seq.nextval,
+		    #{freeboard_no},
+		    #{image_link}
+		)	
+	]]>	
+	</insert>
+
+	<select id="selectByFreeboardNo" resultType="com.bbq.fundmovie.vo.FreeboardImageVo">
+	<![CDATA[
+		SELECT * FROM Freeboard_Image WHERE freeboard_no = #{freeboard_no}	
+	]]>	
+	</select>
+
+
+</mapper>

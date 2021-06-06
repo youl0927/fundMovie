@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbq.fundmovie.auction.mapper.AuctionSQLMapper">
+	
+	<select id="createKey" resultType="int">
+		SELECT auction_no_seq.nextval FROM DUAL	
+	</select>
+	
+	<select id="maxBidder" resultType="int">
+		<![CDATA[
+			select auction_user_no from auction_apply_list
+			where auction_no = #{auction_no}
+			and call_price = (select max(call_price) from auction_apply_list
+			    where auction_no = #{auction_no})
+		]]>
+	</select>
+	
+	<select id="maxPrice" resultType="int">
+		<![CDATA[
+			select max(call_price) from auction_apply_list
+    		where auction_no = #{auction_no}
+		]]>
+	</select>
+	
+	<update id="updateCurrentPrice">
+		<![CDATA[
+			update auction
+		    set current_price = #{current_price}
+		    WHERE auction_no = #{auction_no}
+
+		]]>
+	</update>
+	
+	<select id="countAuction" resultType="int">
+		<![CDATA[
+			SELECT count(*) FROM auction_apply_list 
+			WHERE auction_no = #{auction_no}
+		]]>
+	</select>
+	
+	<select id="countByAuctionNo" resultType="int">
+		<![CDATA[
+			SELECT count(*) FROM auction_apply_list 
+			WHERE auction_no = #{auction_no}
+			AND auction_user_no = #{auction_user_no}
+		]]>
+	</select>
+	
+	<update id="updateAuctionApplyList">
+		<![CDATA[
+			update auction_apply_list 
+			set 
+			total_call_price = #{total_call_price},
+			call_price = #{call_price},
+			call_date = sysdate
+			WHERE auction_no = #{auction_no}
+			AND auction_user_no = #{auction_user_no}
+		]]>
+	</update>
+	
+	<insert id="insertAuctionApplyList">
+		<![CDATA[
+			insert into auction_apply_list values(
+			    auction_apply_list_no_seq.nextval,
+			    #{auction_no},
+			    #{auction_user_no},
+			    #{call_price},
+			    0,
+			    sysdate
+			)
+		]]>
+	</insert>
+	
+	<insert id="insertAuctionInform">
+		<![CDATA[
+			INSERT INTO auction VALUES(
+				#{auction_no},
+				#{user_no},
+			    #{auction_title},
+			   	#{current_price},
+			    #{estimate_price},
+			    #{opening_date},
+			    #{closing_date},
+			    #{auction_detail},
+			    #{maker},
+			    #{production_date},
+			    SYSDATE,
+			    'ing'
+			)
+		]]>
+	</insert>
+	
+	<insert id="addAuctionImages">
+		<![CDATA[
+			INSERT INTO auction_images VALUES(
+				auction_images_no_seq.nextval,
+				#{auction_no},
+				#{auction_main_img},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="selectAll" resultType="com.bbq.fundmovie.vo.AuctionVo">
+		<![CDATA[
+			SELECT * FROM auction WHERE auction_status = 'new'
+			order by closing_date asc
+		]]>
+	</select>
+	
+	<select id="selectMyAuctionNo" resultType="com.bbq.fundmovie.vo.AuctionApplyListVo">
+		<![CDATA[
+			select * from auction_apply_list
+			where auction_user_no = #{auction_user_no}
+		]]>
+	</select>
+	
+	<select id="countMyAuctionByNo" resultType="int">
+		<![CDATA[
+			select count(*) from auction_apply_list
+			where auction_user_no = #{auction_user_no}
+		]]>
+	</select>
+	
+	<select id="selectByNo" resultType="com.bbq.fundmovie.vo.AuctionVo">
+		<![CDATA[
+			SELECT * FROM auction WHERE auction_no = #{auction_no}
+		]]>
+	</select>
+	
+	<select id="selectApplyListByNo" resultType="com.bbq.fundmovie.vo.AuctionApplyListVo">
+		<![CDATA[
+			SELECT * FROM auction_apply_list 
+			WHERE auction_no = #{auction_no}
+			AND auction_user_no = #{auction_user_no}
+		]]>
+	</select>
+	
+	<select id="selectImagesByNo" resultType="com.bbq.fundmovie.vo.AuctionImagesVo">
+		<![CDATA[
+			SELECT * FROM auction_images WHERE auction_no = #{auction_no}
+		]]>
+	</select>
+	
+	<delete id="deleteByNo">
+	<![CDATA[
+		DELETE FROM auction WHERE auction_no = #{auction_no}
+	]]>
+	</delete>
+	
+	<delete id="deleteImagesByNo">
+	<![CDATA[
+		DELETE FROM auction_images WHERE auction_no = #{auction_no}
+	]]>
+	</delete>
+	
+	<update id="updateStatus">
+	<![CDATA[
+		UPDATE auction 
+		SET auction_status='new'
+		WHERE auction_no = #{auction_no}		
+	]]>
+	</update>
+	
+	<update id ="updateAuctionTime">
+	<![CDATA[
+		update auction 
+		set	closing_date = sysdate+(1/(24*60)) 
+		where auction_no = #{auction_no}	
+	]]>
+	</update>
+	
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.funding.mapper.FundingImageSQLMapper">
+	<insert id="insert">
+	<![CDATA[
+		INSERT INTO funding_image VALUES(
+		    funding_image_seq.nextval,
+		    #{funding_open_no},
+		    #{funding_image_link}
+		)	
+	]]>	
+	</insert>
+
+	<select id="selectFundingImagesByFundingNo" resultType="com.bbq.fundmovie.vo.FundingImageVo">
+	<![CDATA[
+		SELECT * FROM funding_image WHERE funding_open_no = #{funding_open_no}	
+	]]>	
+	</select>
+	
+	<update id="updateFundingImage">
+	<![CDATA[
+		UPDATE funding_image SET
+		funding_image_link = #{funding_image_link}
+		WHERE funding_open_no = #{funding_open_no}	and funding_image_no = 21
+		
+	]]>
+	</update>
+	
+</mapper>

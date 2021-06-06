@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.funding.mapper.FundingSQLMapper">
+
+	<select id="createKey" resultType="int">
+	<![CDATA[
+	SELECT Funding_open_seq.nextval FROM Dual
+	]]>
+	</select>
+	
+	<!-- 펀딩 작성 쿼리 -->
+	<insert id="insert">
+	<![CDATA[
+		INSERT INTO Funding_open VALUES(
+			#{funding_open_no},
+			#{user_no},
+			#{funding_title},
+			#{funding_rating},
+			#{funding_start},
+			#{funding_end},
+		    #{release_date},
+		    #{funding_target_point},
+		    #{funding_min_point},
+		    #{release_price},
+		    #{funding_detail},
+		    #{funding_thumb},
+		    'N',
+		    SYSDATE
+		    )
+	]]>
+	</insert>
+	
+	<!-- 펀딩 전체 쿼리 -->
+	<select id="selectAllNow" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * 
+		FROM (
+		    SELECT c1.*,ROWNUM as rnum 
+		    FROM (
+		        SELECT * 
+		        FROM Funding_open
+		        WHERE SYSDATE > funding_start
+				AND SYSDATE < funding_end + 1
+		        ORDER BY Funding_open_no DESC) c1
+		    ) c2
+		WHERE c2.rnum >= (#{page_num}-1)*10+1 
+		AND c2.rnum <= #{page_num}*10
+	]]>
+	</select>
+	
+	<select id="selectAllNow1" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * 
+        FROM Funding_open
+        WHERE SYSDATE > funding_start
+		AND SYSDATE < funding_end + 1
+		AND funding_status='Approved'
+        ORDER BY Funding_open_no DESC
+	]]>
+	</select>
+	
+	<select id="selectAllTobe" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * 
+		FROM (
+		    SELECT c1.*,ROWNUM as rnum 
+		    FROM (
+		        SELECT * 
+		        FROM Funding_open
+		        WHERE SYSDATE < funding_start
+		        ORDER BY Funding_open_no DESC) c1
+		    ) c2
+		WHERE c2.rnum >= (#{page_num}-1)*10+1 
+		AND c2.rnum <= #{page_num}*10
+	]]>
+	</select>
+	
+	<select id="selectByTitle" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * FROM Funding_open 
+		WHERE funding_title LIKE '%' || #{search_word} || '%'
+		ORDER BY Funding_open_no DESC
+	]]>
+	</select>
+	
+	<select id="selectByDetail" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * FROM Funding_open 
+		WHERE funding_detail LIKE '%' || #{search_word} || '%'
+		ORDER BY Funding_open_no DESC
+	]]>
+	</select>
+	
+	<select id="selectByWriter" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT c.* FROM Funding_open c , MF_User m
+		WHERE m.user_no = c.user_no
+		AND m.user_nick LIKE '%' || #{search_word} || '%'
+		ORDER BY Funding_open_no DESC
+	]]>
+	</select>
+	
+	<select id="getPageCount" resultType="int">
+	<![CDATA[
+		SELECT CEIL(COUNT(*)/10) FROM Funding_open
+	]]>			
+	</select>
+	
+	<!-- 펀딩 보기 쿼리 -->
+	<select id="selectByFundingNo" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * FROM Funding_open WHERE Funding_open_no = #{no}	
+	]]>
+	</select>
+	
+	<update id="updateFundingGenreVo">
+	<![CDATA[
+		UPDATE funding_genre SET
+			genre_no=#{genre_no}
+		WHERE funding_open_no=#{funding_open_no}	
+		
+	]]>
+	</update>
+	
+	<insert id="insertFundingGenre">
+	<![CDATA[
+		INSERT INTO funding_genre VALUES(
+			funding_genre_seq.nextval,
+			#{funding_open_no},
+			#{genre_no}
+		)
+	]]>
+	</insert>
+
+	<select id="selectFundingGenreVoByFundingNo" resultType="com.bbq.fundmovie.vo.FundingGenreVo">
+	<![CDATA[
+		SELECT * FROM funding_genre WHERE funding_open_no = #{funding_open_no}	
+	]]>	
+	</select>
+	
+	<select id="selectFundingUserListByNo" resultType="com.bbq.fundmovie.vo.FundingUserListVo">
+	<![CDATA[
+		SELECT * FROM funding_user_list WHERE Funding_open_no = #{no}	
+	]]>
+	</select>
+	
+	<select id="selectAllFundingUserList" resultType="com.bbq.fundmovie.vo.FundingUserListVo">
+	<![CDATA[
+		SELECT * FROM funding_user_list
+	]]>
+	</select>
+	
+	<select id="selectFundingUserByNo" resultType="com.bbq.fundmovie.vo.FundingUserListVo">
+	<![CDATA[
+		SELECT * FROM funding_user_list WHERE Funding_open_no = #{no}	
+	]]>
+	</select>
+	
+	<select id="countFundingUserByMyNo" resultType="int">
+	<![CDATA[
+		SELECT count(*) FROM funding_user_list WHERE funding_open_no = #{funding_open_no}
+		and funding_user_no = #{funding_user_no}	
+	]]>
+	</select>
+	
+	<select id="selectFundingUserByMyNo" resultType="com.bbq.fundmovie.vo.FundingUserListVo">
+	<![CDATA[
+		SELECT * FROM funding_user_list WHERE funding_open_no = #{funding_open_no}
+		and funding_user_no = #{funding_user_no}	
+	]]>
+	</select>
+	
+	
+	<insert id="insertFundingUserList">
+	<![CDATA[
+		INSERT INTO funding_user_list VALUES(
+			funding_user_list_seq.nextval,
+			#{funding_open_no},
+			#{funding_user_no},
+			#{funding_user_point},
+			SYSDATE
+		)
+	]]>
+	</insert>
+	
+	<update id="updateFundingUserList">
+		<![CDATA[
+			UPDATE funding_user_list 
+			SET funding_user_point = #{funding_user_point}
+			WHERE funding_open_no = #{funding_open_no}
+			AND funding_user_no = #{funding_user_no}
+		]]>
+	</update>
+	
+	<select id="selectByUserNo" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * FROM Funding_open WHERE user_no = #{no}	
+	]]>
+	</select>
+	
+	
+	<select id="selectFundingByFundingOpenNo" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+        SELECT * 
+        FROM funding_open
+        WHERE funding_open_no = #{no}
+	]]>
+	</select>
+	
+	<select id="selectUserByFundingOpenNo" resultType="com.bbq.fundmovie.vo.FundingUserListVo">
+	<![CDATA[
+        SELECT * 
+        FROM funding_user_list
+        WHERE funding_open_no = #{no}
+	]]>
+	</select>
+	
+	<select id="fundingTarget" resultType="int">
+	<![CDATA[
+		SELECT funding_target_point 
+        FROM funding_open
+        WHERE funding_open_no = #{funding_open_no}
+	]]>
+	</select>
+	
+	<insert id="insertUploadMovie">
+	<![CDATA[
+		INSERT INTO upload_funding_result VALUES(
+			#{upload_funding_result_no},
+			#{funding_open_no},
+			#{upload_funding_user_no},
+			#{upload_funding_movie_link},
+			SYSDATE
+		)
+	]]>
+	</insert>
+	
+	<select id="createUploadMovieKey" resultType="int">
+	<![CDATA[
+	SELECT upload_funding_result_seq.nextval FROM Dual
+	]]>
+	</select>
+	
+	<select id="selectAllUploadMovie" resultType="com.bbq.fundmovie.vo.UploadFundingResultVo">
+	<![CDATA[
+		SELECT * FROM upload_funding_result ORDER BY upload_funding_result_no DESC
+	]]>
+	</select>
+	
+	<select id="getUploadMoviePageCount" resultType="int">
+	<![CDATA[
+		SELECT CEIL(COUNT(*)/10) FROM upload_funding_result
+	]]>			
+	</select>
+	
+	<select id="selectUploadFundingResultByFundingOpenNo" resultType="com.bbq.fundmovie.vo.UploadFundingResultVo">
+	<![CDATA[
+		SELECT * FROM upload_funding_result WHERE funding_open_no = #{no}	
+	]]>
+	</select>
+	
+	<select id="checkFundingCount" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM funding_user_list WHERE funding_open_no = #{funding_open_no} AND funding_user_no = #{funding_user_no}
+		]]>
+	</select>
+	
+	<select id="getcheckCount" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM funding_user_list WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+	
+	<select id="getFundingUserCount" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM funding_user_list WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+	
+	<select id="getFundingSumPoint" resultType="Integer">
+		<![CDATA[
+		SELECT SUM(funding_user_point) FROM funding_user_list WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+	
+	<select id="fundingSumPoint" resultType="int">
+		<![CDATA[
+		SELECT SUM(funding_user_point) FROM funding_user_list WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+	
+	<select id="getFundingCountCommunityContent" resultType="int">
+		<![CDATA[
+			SELECT COUNT(funding_community_no) FROM funding_community WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+	
+	<select id="getCountFundingNotice" resultType="int">
+		<![CDATA[
+			SELECT COUNT(funding_notice_no) FROM funding_notice WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+		
+	<select id="getFundingRemainDate" resultType="int">
+		<![CDATA[
+		SELECT  TRUNC(funding_end - SYSDATE) FROM funding_open 
+		WHERE funding_open_no = #{no}
+		]]>
+	</select>
+	
+	
+	<insert id="fundingQnAInsert">
+		<![CDATA[
+			INSERT INTO funding_qna VALUES(
+				#{funding_qna_no},
+				#{user_no},
+				#{funding_open_no},
+				#{funding_qna_category_no},
+				#{funding_qna_title},
+				#{funding_qna_content},
+				0,
+				SYSDATE,
+				'No'
+			)
+		]]>
+	</insert>
+	
+	<select id="fundingQnASelectAll" resultType="com.bbq.fundmovie.vo.FundingQnAVo">
+		<![CDATA[
+			SELECT * FROM funding_qna WHERE funding_open_no = #{no} ORDER BY funding_open_no DESC
+		]]>
+	</select>
+	
+	<select id="fundingQnASelectByQnANo" resultType="com.bbq.fundmovie.vo.FundingQnAVo">
+		<![CDATA[
+			SELECT * FROM funding_qna WHERE funding_qna_no = #{no}
+		]]>
+	</select>
+	
+	<select id="fundingQnASelectByFundingOpenNo" resultType="com.bbq.fundmovie.vo.FundingQnAVo">
+		<![CDATA[
+			SELECT * FROM funding_qna WHERE funding_open_no = #{no}
+		]]>
+	</select>
+	
+	<select id="fundingQnACategorySelectByCategoryNo" resultType="com.bbq.fundmovie.vo.FundingQnACategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM funding_qna_category 
+			WHERE funding_qna_category_no = #{funding_qna_category_no}
+		]]>
+	</select>
+	
+	<update id="fundingQnAUpdateContent">
+		<![CDATA[
+			UPDATE funding_qna 
+			SET funding_qna_title = #{funding_qna_title}, 
+			funding_qna_content = #{funding_qna_content}
+			WHERE funding_qna_no = #{funding_qna_no}
+		]]>
+	</update>
+	
+	<delete id="fundingQnADeleteContent">
+		<![CDATA[
+			DELETE FROM funding_qna WHERE funding_qna_no = #{funding_qna_no}
+		]]>
+	</delete>
+	
+	<update id="updateFundingQnAStatus">
+	 <![CDATA[
+		UPDATE funding_qna
+		SET funding_qna_status = 'Yes'
+		WHERE funding_qna_no = #{funding_qna_no}
+	]]> 
+	 </update>
+	
+	<select id="fundingNoticeSelectByNoticeNo" resultType="com.bbq.fundmovie.vo.FundingNoticeVo">
+		<![CDATA[
+			SELECT * FROM funding_community WHERE funding_community_no = #{funding_community_no}		
+		]]>
+	</select>
+	
+	<select id="fundingNoticeSelectByFundingOpenNo" resultType="com.bbq.fundmovie.vo.FundingNoticeVo">
+		<![CDATA[
+			SELECT * 
+			FROM funding_notice 
+			WHERE funding_open_no=#{funding_open_no} 
+			ORDER BY funding_notice_no ASC
+		]]>
+	</select>
+	
+	<insert id="fundingNoticeInsert">
+		<![CDATA[
+			INSERT INTO funding_notice VALUES(
+				funding_notice_seq.nextval,
+				#{funding_open_no},
+				#{user_no},
+				#{funding_notice_title},
+				#{funding_notice_content},
+				SYSDATE
+			)
+		]]>
+	</insert>
+
+	<update id="fundingNoticeUpdate">
+		<![CDATA[
+			UPDATE funding_notice
+			SET funding_notice_title = #{funding_notice_title},
+			funding_notice_content = #{funding_notice_content}
+			WHERE funding_notice_no = #{funding_notice_no} 
+			AND funding_open_no = #{funding_open_no}
+		]]>
+	</update>
+	
+	<delete id="fundingNoticeDelete">
+		<![CDATA[
+			DELETE 
+			FROM funding_notice 
+			WHERE funding_notice_no = #{funding_notice_no} 
+			AND funding_open_no = #{funding_open_no}
+		]]>
+	</delete>
+	
+	<select id="fundingCommunitySelectByCommnuityNo" resultType="com.bbq.fundmovie.vo.FundingQnACommentVo">
+		<![CDATA[
+			SELECT * FROM funding_community WHERE funding_community_no = #{funding_community_no}		
+		]]>
+	</select>
+	
+	<select id="fundingCommunitySelectByFundingOpenNo" resultType="com.bbq.fundmovie.vo.FundingCommunityVo">
+		<![CDATA[
+			SELECT * 
+			FROM funding_community 
+			WHERE funding_open_no=#{funding_open_no} 
+			ORDER BY funding_community_no ASC
+		]]>
+	</select>
+	
+	<insert id="fundingCommunityInsert">
+		<![CDATA[
+			INSERT INTO funding_community VALUES(
+				funding_community_seq.nextval,
+				#{funding_open_no},
+				#{funding_user_no},
+				#{funding_community_content},
+				SYSDATE
+			)
+		]]>
+	</insert>
+
+	<update id="fundingCommunityUpdate">
+		<![CDATA[
+			UPDATE funding_community
+			SET funding_community_content = #{funding_community_content}
+			WHERE funding_community_no = #{funding_community_no} 
+			AND funding_open_no = #{funding_open_no}
+		]]>
+	</update>
+	
+	<delete id="fundingCommunityDelete">
+		<![CDATA[
+			DELETE 
+			FROM funding_community 
+			WHERE funding_community_no = #{funding_community_no} 
+			AND funding_open_no = #{funding_open_no}
+		]]>
+	</delete>
+	
+	
+	<select id="fundingQnACommentSelectByQnACommentNo" resultType="com.bbq.fundmovie.vo.FundingQnACommentVo">
+		<![CDATA[
+			SELECT * FROM funding_qna_comment WHERE funding_qna_comment_no = #{funding_qna_comment_no}		]]>
+	</select>
+	
+	
+	<select id="fundingQnACommentSelectByNo" resultType="com.bbq.fundmovie.vo.FundingQnACommentVo">
+		<![CDATA[
+			SELECT * 
+			FROM funding_qna_comment 
+			WHERE funding_qna_no=#{funding_qna_no} 
+			ORDER BY funding_qna_comment_no ASC
+		]]>
+	</select>
+	
+	<insert id="fundingQnACommentInsert">
+		<![CDATA[
+			INSERT INTO funding_qna_comment VALUES(
+				funding_qna_comment_seq.nextval,
+				#{funding_qna_no},
+				#{user_no},
+				#{funding_qna_comment},
+				SYSDATE
+			)
+		]]>
+	</insert>
+
+	<update id="fundingQnACommentUpdate">
+		<![CDATA[
+			UPDATE funding_qna_comment
+			SET funding_qna_comment = #{funding_qna_comment}
+			WHERE funding_qna_comment_no = #{funding_qna_comment_no} 
+			AND funding_qna_no = #{funding_qna_no}
+		]]>
+	</update>
+	
+	<delete id="fundingQnACommentDelete">
+		<![CDATA[
+			DELETE 
+			FROM funding_qna_comment 
+			WHERE funding_qna_no=#{funding_qna_no} 
+			AND funding_qna_comment_no=#{funding_qna_comment_no}
+		]]>
+	</delete>
+	
+	<select id="fundmovieCommentSelectByNo" resultType="com.bbq.fundmovie.vo.FundMovieCommentVo">
+		<![CDATA[
+			SELECT * 
+			FROM fund_movie_comment 
+			WHERE funding_open_no=#{funding_open_no} 
+			ORDER BY fund_movie_comment_no ASC
+		]]>
+	</select>
+	
+		<insert id="fundMovieCommentInsert">
+		<![CDATA[
+			INSERT INTO fund_movie_comment VALUES(
+				fund_movie_comment_seq.nextval,
+				#{funding_open_no},
+				#{fund_movie_star},
+				#{user_no},
+				#{fund_movie_comment},
+				SYSDATE
+			)
+		]]>
+	</insert>
+
+	<update id="fundMovieCommentUpdate">
+		<![CDATA[
+			UPDATE fund_movie_comment
+			SET fund_movie_comment = #{fund_movie_comment}
+			WHERE fund_movie_comment_no = #{fund_movie_comment_no} 
+			AND user_no = #{user_no}
+		]]>
+	</update>
+	
+	<delete id="fundMovieCommentDelete">
+		<![CDATA[
+			DELETE 
+			FROM fund_movie_comment 
+			WHERE fund_movie_comment_no=#{fund_movie_comment_no} 
+			AND user_no=#{user_no}
+		]]>
+	</delete>
+	
+	<select id="createFundingQnAKey" resultType="int">
+	<![CDATA[
+	SELECT funding_qna_seq.nextval FROM Dual
+	]]>
+	</select>
+	
+	<update id="fundingQnAIncreaseReadCount">
+	 <![CDATA[
+		UPDATE funding_qna
+		SET funding_qna_readcount = funding_qna_readcount + 1
+		WHERE funding_qna_no = #{funding_qna_no}
+	]]> 
+	 </update>
+	
+	<insert id="fundingLikeInsert">
+		<![CDATA[
+			INSERT INTO funding_like VALUES(
+				funding_like_seq.nextval,
+				#{funding_open_no},
+				#{user_no}
+			)
+		]]>
+	</insert>
+	
+	<delete id="fundingLikeCancel">
+		<![CDATA[
+			DELETE FROM funding_like 
+			WHERE user_no=#{user_no} AND funding_open_no=#{funding_open_no}
+		]]>
+	</delete>
+
+	<select id="fundingLikeCheck" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) 
+			FROM funding_like 
+			WHERE funding_open_no=#{funding_open_no} AND user_no=#{user_no}
+		]]>
+	</select>
+	
+	<select id="fundingLikeCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM funding_like
+			WHERE funding_open_no = #{funding_open_no}
+		]]>
+	</select>
+	
+	<select id="fundingLikeSelectByUserNo" resultType="com.bbq.fundmovie.vo.FundingLikeVo">
+		<![CDATA[
+			SELECT * 
+			FROM funding_like 
+			WHERE user_no=#{user_no}
+		]]>
+	</select>
+	
+	
+	
+	
+	
+	
+	
+</mapper>

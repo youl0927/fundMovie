@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.freeboard.mapper.FreeboardLikeSQLMapper">
+
+	<insert id="freeboardLikeinsert">
+		<![CDATA[
+			INSERT INTO Freeboard_like VALUES(
+			freeboard_like_seq.nextval,
+			#{freeboard_no},
+			#{user_no},
+			'1',
+			SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<delete id="freeboardLikedelete">
+		<![CDATA[
+			DELETE FROM freeboard_like
+			WHERE freeboard_no = #{freeboard_no}
+			AND user_no= #{user_no}
+		]]>	
+	</delete>
+	
+	<select id="countMyLike" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) FROM Freeboard_like
+			where freeboard_no=#{freeboard_no} AND user_no=#{user_no}
+			
+		]]>
+	</select>
+	<select id="countLikeTotal" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) FROM Freeboard_like
+			where freeboard_no=#{no}
+			
+		]]>
+	</select>
+	
+	<select id="MyLike" resultType="com.bbq.fundmovie.vo.FreeboardLikeVo">
+		<![CDATA[
+		select * from freeboard_like where freeboard_no = #{freeboard_no} AND user_no= #{user_no}
+		]]>
+	</select>
+
+</mapper>

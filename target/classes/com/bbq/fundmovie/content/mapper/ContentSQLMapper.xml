@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbq.fundmovie.content.mapper.ContentSQLMapper">
+	
+	<!-- qna 글쓰기 -->
+	<insert id="qnaInsert">
+		<![CDATA[
+			INSERT INTO qna VALUES(
+				qna_seq.nextval,
+				#{user_no},
+				#{qna_headline_no},
+				#{qna_title},
+				#{qna_content},
+				0,
+				SYSDATE,
+				null
+			)
+		]]>
+	</insert>
+	
+	
+	<!--qna 글전체보기 메인화면 -->
+	<select id="qnaSelectAll" resultType="com.bbq.fundmovie.vo.QnaVo">
+		<![CDATA[
+			SELECT * FROM qna ORDER BY qna_no DESC
+		]]>
+	</select>
+	
+	<!-- qna 글 읽기 -->
+	<select id="qnaSelectByNo" resultType="com.bbq.fundmovie.vo.QnaVo">
+		<![CDATA[
+			SELECT * FROM qna WHERE qna_no = #{no}
+		]]>
+	</select>
+	
+		
+	<!-- qna headline select -->
+	<select id="qnaHeadlineSelect" resultType="com.bbq.fundmovie.vo.QnaHeadlineVo">
+		<![CDATA[
+			SELECT * 
+			FROM qna_headline 
+			WHERE qna_headline_no = #{qna_headline_no}
+		]]>
+	</select>
+	
+	<!-- qna 글 삭제 -->	
+	<delete id="qnaDeleteContent">
+		<![CDATA[
+			DELETE FROM qna WHERE qna_no = #{no}
+		]]>
+	</delete>
+		
+	<update id="qnaUpdateContent">
+		<![CDATA[
+			UPDATE qna 
+			SET qna_title = #{qna_title}, qna_content = #{qna_content}
+			WHERE qna_no = #{qna_no}
+		]]>
+	</update>
+	
+		
+	<!-- 1. qna 좋아요 -->
+	<insert id="qnaLikeInsert">
+		<![CDATA[
+			INSERT INTO qna_like VALUES(
+				qna_like_seq.nextval,
+				#{qna_no},
+				#{user_no}
+			)
+		]]>
+	</insert>
+	
+	<!-- 3. qna 좋아요 클릭취소 -->
+	<delete id="qnaLikeCancel">
+		<![CDATA[
+			DELETE FROM qna_like 
+			WHERE user_no=#{user_no} AND qna_no=#{qna_no}
+		]]>
+	</delete>
+
+	<!-- 4. 좋아요 중복확인 -->
+	<select id="qnaLikeCheck" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) 
+			FROM qna_like 
+			WHERE qna_no=#{qna_no} AND user_no=#{user_no}
+		]]>
+	</select>
+	
+	 
+	 <select id="qnaLikePageCount" resultType="int">
+	 	<![CDATA[
+		 	SELECT COUNT(*)
+			FROM qna_like
+			WHERE qna_no=#{qna_no}
+		]]> 
+	 </select>
+	 
+	 
+	 <update id="qnaIncreaseReadCount">
+	 <![CDATA[
+		UPDATE qna
+		SET qna_readcount = qna_readcount+1
+		WHERE qna_no = #{qna_no}
+	]]> 
+	 </update>
+	
+	<!-- 답변완료 알림뜨기 --> 
+	<select id="qnaComplete" resultType="com.bbq.fundmovie.vo.QnaVo">	
+	<![CDATA[
+		SELECT COUNT(qna_reply)
+		FROM qna
+		WHERE qna_no=#{qna_no}
+	]]>
+	</select>
+	
+	<!-- qna 페이징 -->
+	<select id="qnaGetPageCount" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/10) FROM qna
+		]]>
+	</select>
+	
+	<select id="qnaPageSelectAll" resultType="com.bbq.fundmovie.vo.QnaVo">
+		<![CDATA[ 
+			SELECT * 
+			FROM(
+			    SELECT q1.*,ROWNUM as rnum 
+			    FROM (
+			        SELECT * 
+			        FROM qna 
+			        ORDER BY qna_no DESC) q1) q2
+			WHERE q2.rnum >= (#{page_num}-1)*10-1
+			AND q2.rnum <= #{page_num}*10
+		]]>
+	</select>
+	
+</mapper>

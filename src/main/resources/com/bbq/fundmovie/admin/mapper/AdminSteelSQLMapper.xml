@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.admin.mapper.AdminSteelSQLMapper">
+	<insert id="insert">
+	<![CDATA[
+		INSERT INTO movie_steelcut VALUES(
+		    movie_steelcut_seq.nextval,
+		    #{movie_no},
+		    #{movie_steelcut_img}
+		)	
+	]]>	
+	</insert>
+
+	<select id="selectByMovieNo" resultType="com.bbq.fundmovie.vo.MovieSteelcutVo">
+	<![CDATA[
+		SELECT * FROM movie_steelcut WHERE movie_no = #{movie_no}	
+	]]>	
+	</select>
+	
+	<!-- 글 삭제 쿼리... -->
+	<delete id="deleteByNo">
+	<![CDATA[
+		DELETE FROM movie_steelcut WHERE movie_no = #{movie_no}
+	]]>
+	</delete>
+
+</mapper>

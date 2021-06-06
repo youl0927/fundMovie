@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bbq.fundmovie.playlist.mapper.PlayListSQLMapper">
+    <select id="createKey" resultType="int">
+        SELECT MOVIE_seq.nextval
+        FROM DUAL
+    </select>
+
+    <select id="selectAll" resultType="com.bbq.fundmovie.vo.PlaylistVo">
+        <![CDATA[
+        select *
+        from PLAYLIST
+        order by playlist_no desc
+        ]]>
+    </select>
+
+    <select id="selectAllMovie" resultType="com.bbq.fundmovie.vo.MovieVo">
+        select *
+        from movie
+    </select>
+
+    <select id="getMovieListFromPlaylistByPlaylistNo" resultType="com.bbq.fundmovie.vo.MoviePlaylistVo">
+        select *
+        from movie_playlist
+        where playlist_no = #{playlist_no}
+    </select>
+
+    <insert id="writePlayList" parameterType="com.bbq.fundmovie.vo.PlaylistVo">
+        <![CDATA[
+        insert into playlist
+        values (PLAYLIST_seq.nextval,
+                #{user_no},
+                #{playlist_title},
+                #{playlist_thumbnail, jdbcType=VARCHAR},
+                #{playlist_content})
+        ]]>
+    </insert>
+
+    <insert id="insertMovieIntoPlayList">
+        <![CDATA[
+        insert into movie_playlist
+        values (MOVIE_PLAYLIST_SEQ.nextval,
+                #{movie_no},
+                #{playlist_no})
+        ]]>
+    </insert>
+
+    <select id="selectByPlayListNo" resultType="com.bbq.fundmovie.vo.PlaylistVo">
+        <![CDATA[
+        select *
+        from playlist
+        where playlist_no = #{playlist_no}
+        ]]>
+    </select>
+
+    <select id="myAllList" resultType="com.bbq.fundmovie.vo.PlaylistVo">
+        <![CDATA[
+        select *
+        from playlist
+        where user_no = #{user_no}
+        ]]>
+    </select>
+
+    <update id="updatePlaylist">
+        <![CDATA[
+        update playlist
+        set playlist_title     = #{playlist_title},
+            playlist_thumbnail = #{playlist_thumbnail},
+            playlist_content   = #{playlsit_content}
+        where playlist_no = #{playlist_no}
+        ]]>
+    </update>
+
+
+    <delete id="deleteMovieFromPlaylist">
+        <![CDATA[
+        delete
+        from movie_playlist
+        where movie_no = #{movie_no}
+          and playlist_no = #{playlist_no}
+        ]]>
+    </delete>
+
+    <delete id="deletePlaylist">
+        <![CDATA[
+        delete
+        from playlist
+        where playlist_no = #{playlist_no}
+        /*movie_playlist에서도 지워야되는데 delete를 두 개 써야되나?*/
+        ]]>
+    </delete>
+
+
+</mapper>

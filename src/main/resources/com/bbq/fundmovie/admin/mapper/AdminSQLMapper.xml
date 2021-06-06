@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbq.fundmovie.admin.mapper.AdminSQLMapper">
+
+	<select id="createKey" resultType="int">
+		SELECT MOVIE_seq.nextval FROM DUAL	
+	</select>
+	
+	<insert id="addMovieInform">
+		<![CDATA[
+			INSERT INTO movie VALUES(
+			    #{movie_no},
+			    #{user_no},
+			    #{movie_director},
+			    #{movie_actor},
+			    #{movie_title},
+			    #{movie_rating},
+			    #{movie_release_date},
+			    #{movie_synopsis},
+			    #{movie_runtime},
+			    #{movie_main_img},
+			    #{movie_from},
+			    0,
+			    SYSDATE
+			)
+		]]>
+	</insert>
+	
+		
+	<!-- genre... -->
+	<insert id="insertGenre">
+	<![CDATA[
+		INSERT INTO movie_genre VALUES(
+			movie_genre_seq.nextval,
+			#{movie_no},
+			#{genre_no}
+		)		
+	]]>	
+	</insert>
+	
+	<select id="selectGenre" resultType="String">
+	<![CDATA[
+		select genre_name from movie_genre mg, genre g
+		where mg.genre_no = g.genre_no
+		and movie_no = #{movie_no}
+	]]>
+	</select>
+	
+	
+	<select id="selectAll" resultType="com.bbq.fundmovie.vo.ContentVo">
+	<![CDATA[
+		SELECT * 
+		FROM (
+		    SELECT c1.*,ROWNUM as rnum 
+		    FROM (
+		        SELECT * 
+		        FROM movie 
+		        ORDER BY movie_no DESC) c1
+		    ) c2
+		WHERE c2.rnum >= (#{page_num}-1)*10+1 
+		AND c2.rnum <= #{page_num}*10	
+	]]>
+	</select>
+		
+	<select id="selectByTitle" resultType="com.bbq.fundmovie.vo.ContentVo">
+	<![CDATA[
+		SELECT * FROM movie 
+		WHERE movie_title LIKE '%' || #{search_word} || '%'
+		ORDER BY movie_no DESC
+	]]>
+	</select>
+
+	<select id="selectByContent" resultType="com.bbq.fundmovie.vo.ContentVo">
+	<![CDATA[
+		SELECT * FROM movie 
+		WHERE movie_synopsis LIKE '%' || #{search_word} || '%'
+		ORDER BY movie_no DESC
+	]]>
+	</select>
+
+	<select id="selectByWriter" resultType="com.bbq.fundmovie.vo.ContentVo">
+	<![CDATA[
+		SELECT c.* FROM movie c , MF_User m
+		WHERE m.user_no = c.user_no
+		AND m.user_nick LIKE '%' || #{search_word} || '%'
+		ORDER BY movie_no DESC
+	]]>
+	</select>
+	
+	
+	<!-- 글 보기..쿼리.. -->
+	<select id="selectByNo" resultType="com.bbq.fundmovie.vo.ContentVo">
+	<![CDATA[
+		SELECT * FROM movie WHERE movie_no = #{no}
+	]]>
+	</select>
+	
+	<select id="getPageCount" resultType="int">
+	<![CDATA[
+		SELECT CEIL(COUNT(*)/10) FROM movie
+	]]>			
+	</select>
+	
+	<!-- 글 삭제 쿼리... -->
+	<delete id="deleteByNo">
+	<![CDATA[
+		DELETE FROM movie WHERE movie_no = #{movie_no}
+	]]>
+	</delete>
+
+	<!-- 글 수정 쿼리... -->
+	<update id="update">
+	<![CDATA[
+		UPDATE movie 
+		SET movie_title=#{movie_title},
+			movie_synopsis=#{movie_synopsis}
+		WHERE movie_no = #{movie_no}		
+	]]>
+	</update>
+	
+	
+	<!-- 등급변경 쿼리... -->
+	<update id="updateRank">
+	<![CDATA[
+		UPDATE MF_User 
+		SET user_author='펀드유저'
+		WHERE user_no = #{user_no}		
+	]]>
+	</update>
+	
+	<!-- 펀딩 조건에 따른 쿼리 -->
+	<select id="selectSatisiedFunding" resultType="com.bbq.fundmovie.vo.FundingOpenVo">
+	<![CDATA[
+		SELECT * FROM funding_open
+		WHERE funding_end <= SYSDATE
+		AND funding_status='Approved'
+	]]>
+	</select>
+	
+	
+	
+	<!-- 펀딩 승인 쿼리... -->
+	<update id="updateFundingStatusApproved">
+	<![CDATA[
+		UPDATE funding_open 
+		SET funding_status='Approved'
+		WHERE funding_open_no = #{funding_open_no}		
+	]]>
+	</update>
+	
+	<update id="updateFundingStatusComplete">
+	<![CDATA[
+		UPDATE funding_open 
+		SET funding_status='Complete'
+		WHERE funding_open_no = #{funding_open_no}		
+	]]>
+	</update>
+	
+	<update id="updateFundingStatusUploaded">
+	<![CDATA[
+		UPDATE funding_open 
+		SET funding_status='Uploaded'
+		WHERE funding_open_no = #{funding_open_no}		
+	]]>
+	</update>
+	
+	
+	<!--qna 리플 -->
+	
+	<!--qna 글전체보기 메인화면 -->
+	<select id="qnaSelectAll" resultType="com.bbq.fundmovie.vo.QnaVo">
+		<![CDATA[
+			SELECT * FROM qna ORDER BY qna_content DESC
+		]]>
+	</select>
+	
+		<!-- qna 글 읽기 -->
+	<select id="qnaSelectByNo" resultType="com.bbq.fundmovie.vo.QnaVo">
+		<![CDATA[
+			SELECT * FROM qna WHERE qna_no = #{no}
+		]]>
+	</select>
+	
+		
+	<!-- qna headline select -->
+	<select id="qnaHeadlineSelect" resultType="com.bbq.fundmovie.vo.QnaHeadlineVo">
+		<![CDATA[
+			SELECT * 
+			FROM qna_headline 
+			WHERE qna_headline_no = #{qna_headline_no}
+		]]>
+	</select>
+	
+	<!--qna admin reply -->
+	<update id="qnaAdminReply">
+		<![CDATA[
+			UPDATE qna 
+			SET qna_reply = #{qna_reply}
+			WHERE qna_no = #{qna_no}
+		]]>
+	</update>
+	
+		<!-- qna 페이징 -->
+	<select id="qnaGetPageCount" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/10) FROM qna
+		]]>
+	</select>
+	
+	<select id="qnaPageSelectAll" resultType="com.bbq.fundmovie.vo.QnaVo">
+		<![CDATA[ 
+			SELECT * 
+			FROM(
+			    SELECT q1.*,ROWNUM as rnum 
+			    FROM (
+			        SELECT * 
+			        FROM qna 
+			        ORDER BY qna_no DESC) q1) q2
+			WHERE q2.rnum >= (#{page_num}-1)*10-1
+			AND q2.rnum <= #{page_num}*10
+		]]>
+	</select>
+</mapper>

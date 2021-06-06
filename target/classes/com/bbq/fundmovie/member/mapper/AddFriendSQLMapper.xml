@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbq.fundmovie.member.mapper.AddFriendSQLMapper">
+
+	<!-- 친구  No순으로 -->
+	<select id="selectByNo" resultType="com.bbq.fundmovie.vo.AddFriendVo">
+		<![CDATA[	
+			SELECT * 
+			FROM addFriend af
+            WHERE af.user_no = #{no}
+		]]>
+	</select>
+	<select id="selectByMyNo" resultType="com.bbq.fundmovie.vo.AddFriendVo">
+		<![CDATA[	
+			SELECT * 
+			FROM addFriend af
+            WHERE af.friend_user_no = #{no}
+		]]>
+	</select>
+
+	<!-- 친구 등록 -->
+	
+	<insert id="addFriend">
+	<![CDATA[
+		INSERT INTO addfriend VALUES(
+			friend_no_seq.nextval,
+			#{user_no},
+			#{friend_user_no},
+			SYSDATE
+		)		
+	]]>	
+	</insert>
+
+	<!-- 친구 삭제 -->
+	<delete id="deleteByFriendNo">
+	<![CDATA[
+	DELETE FROM addfriend 
+	WHERE friend_user_no = #{friend_user_no} 
+	AND user_no= #{user_no}
+	]]>
+	</delete>
+	
+
+	<!-- Member찾기 -->
+	<select id="selectAll" resultType="com.bbq.fundmovie.vo.MemberVo">
+	<![CDATA[
+		SELECT * 
+		FROM (
+		    SELECT c1.*,ROWNUM as rnum 
+		    FROM (
+		        SELECT * 
+		        FROM MF_User 
+		        ORDER BY user_nick ) c1
+		    ) c2
+		WHERE c2.rnum >= (#{page_num}-1)*10+1 
+		AND c2.rnum <= #{page_num}*10	
+	]]>
+	</select>	
+	<select id="selectByNick" resultType="com.bbq.fundmovie.vo.MemberVo">
+	<![CDATA[
+		SELECT * FROM MF_User 
+		WHERE user_nick LIKE '%' || #{search_word} || '%'
+		ORDER BY user_nick
+	]]>
+	</select>
+
+	<select id="selectById" resultType="com.bbq.fundmovie.vo.MemberVo">
+	<![CDATA[
+		SELECT * FROM MF_User 
+		WHERE user_id LIKE '%' || #{search_word} || '%'
+		ORDER BY user_nick
+	]]>
+	</select>
+
+	<select id="selectByEmail" resultType="com.bbq.fundmovie.vo.MemberVo">
+	<![CDATA[
+		SELECT * FROM MF_User 
+		WHERE user_email LIKE '%' || #{search_word} || '%'
+		ORDER BY user_nick
+	]]>
+	</select>
+	
+	<select id="getPageCount" resultType="int">
+	<![CDATA[
+		SELECT CEIL(COUNT(*)/10) FROM MF_User
+	]]>			
+	</select>
+	
+	
+</mapper>	
+	

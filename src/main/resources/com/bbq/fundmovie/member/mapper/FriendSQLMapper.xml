@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.member.mapper.FriendSQLMapper">
+	
+	
+	
+	
+	
+	<insert id="addFriend">
+	<![CDATA[
+		INSERT INTO friend(active_user_no, passive_user_no) 
+		VALUES(#{active_user_no},#{passive_user_no})
+		]]>
+	</insert>
+	
+	<delete id="noFriend">
+		<![CDATA[
+		DELETE FROM friend WHERE active_user_no = #{active_user_no} 
+		AND passive_user_no = #{passive_user_no}
+		]]>
+	</delete>
+	
+	<select id="isFriend" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM friend WHERE active_user_no = #{active_user_no} 
+		AND passive_user_no = #{passive_user_no}
+		]]>
+	</select>
+	
+	<select id="selectActiveUserList" resultType="com.bbq.fundmovie.vo.FriendVo">
+		<![CDATA[
+		SELECT active_user_no, passive_user_no, f.friend_regdate AS friend_regdate, u.user_id AS passive_user_id 
+		FROM friend F LEFT OUTER JOIN MF_User U ON (f.passive_user_id = u.user_no)
+		WHERE active_user_no = #{active_user_no} ORDER BY friend_regdate
+		]]>
+	</select>
+	
+	<select id="selectPassiveUserList" resultType="com.bbq.fundmovie.vo.FriendVo">
+		<![CDATA[
+		SELECT active_user_no, passive_user_no, f.friend_regdate AS friend_regdate, U.user_id AS active_user_id 
+		FROM friend F LEFT OUTER JOIN MF_User U ON (f.active_user_id = u.user_no)
+		WHERE passive_user_no = #{passive_user_no} ORDER BY friend_regdate
+		]]>
+	</select>
+	
+	<delete id="deleteAllFriend">
+		<![CDATA[
+		DELETE FROM friend WHERE active_user_no = #{active_user_no};
+		]]>
+	</delete>
+</mapper>

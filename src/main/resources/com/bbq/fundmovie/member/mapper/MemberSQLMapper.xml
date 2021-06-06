@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbq.fundmovie.member.mapper.MemberSQLMapper">
+
+
+	<!-- ID 중복 체크 -->
+	<select id="searchById" resultType="com.bbq.fundmovie.vo.MemberVo">
+		<![CDATA[	
+			SELECT * 
+			FROM MF_User 
+			WHERE user_id = #{id}	
+		]]>
+	</select>
+
+
+	<!-- 닉네임 중복 체크 -->
+	<select id="searchByNick" resultType="com.bbq.fundmovie.vo.MemberVo">
+		<![CDATA[	
+			SELECT * 
+			FROM MF_User 
+			WHERE user_nick = #{nick}	
+		]]>
+	</select>
+
+	<!-- 회원가입 -->
+	<insert id="insert">
+	<![CDATA[
+		INSERT INTO MF_User VALUES(MF_User_seq.nextval,
+			0,0,
+			#{user_id},#{user_pw},#{user_nick},#{user_address},#{user_zipcode},#{user_email},#{user_rrn},
+			0,0,0,0,null,'일반유저',SYSDATE)
+	]]>
+	</insert>
+	
+	
+	<!-- 로그인 -->
+	<select id="selectForLogin" resultType="com.bbq.fundmovie.vo.MemberVo">
+		<![CDATA[
+			SELECT * FROM MF_User
+			WHERE user_id = #{user_id}
+			AND user_pw = #{user_pw}
+		]]>
+	</select>
+	
+	<!-- 멤버 No순으로 -->
+	<select id="selectByNo" resultType="com.bbq.fundmovie.vo.MemberVo">
+		<![CDATA[	
+			SELECT * 
+			FROM MF_User 
+			WHERE user_no = #{no}	
+		]]>
+	</select>
+	
+</mapper>

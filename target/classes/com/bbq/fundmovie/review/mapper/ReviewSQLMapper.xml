@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bbq.fundmovie.review.mapper.ReviewSQLMapper">
+
+	<select id="reviewFirst" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT *
+  			FROM (SELECT movie_review.*
+            	 , ROW_NUMBER() OVER(ORDER BY movie_review_readcount DESC) rn
+         		FROM movie_review
+      			  )
+ 			WHERE rn = 1
+	]]>
+	
+	</select>
+	
+	<select id="reviewSecond" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT *
+  			FROM (SELECT movie_review.*
+            	 , ROW_NUMBER() OVER(ORDER BY movie_review_readcount DESC) rn
+         		FROM movie_review
+      			  )
+ 			WHERE rn = 2
+	]]>
+	</select>
+	
+	<select id="reviewThird" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT *
+  			FROM (SELECT movie_review.*
+            	 , ROW_NUMBER() OVER(ORDER BY movie_review_readcount DESC) rn
+         		FROM movie_review
+      			  )
+ 			WHERE rn = 3
+	]]>
+	</select>
+	
+	<select id="selectMovieList" resultType="com.bbq.fundmovie.vo.ContentVo">
+		<![CDATA[
+			select * from movie
+		]]>
+	</select>
+	
+	<select id="selectAllReview" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT * 
+		FROM (
+		    SELECT c1.*,ROWNUM as rnum 
+		    FROM (
+				select * 
+				from movie_review 
+				ORDER BY movie_review_no DESC) c1
+			)c2
+			WHERE c2.rnum >= (#{page_num}-1)*10+1 
+			AND c2.rnum <= #{page_num}*10
+	]]>		
+	</select>
+	
+	<select id="selectByTitle" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT * FROM movie_review 
+		WHERE movie_review_title LIKE '%' || #{search_word} || '%'
+		ORDER BY movie_review_no DESC
+	]]>
+	</select>
+	
+	<select id="selectByContent" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT * FROM movie_review
+		WHERE movie_review_content LIKE '%' || #{search_word} || '%'
+		ORDER BY movie_review DESC
+	]]>
+	</select>
+	
+	<select id="selectByWriter" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		SELECT c.* FROM movie_review c , FB_user m
+		WHERE m.user_no = c.user_no
+		AND m.user_nick LIKE '%' || #{search_word} || '%'
+		ORDER BY movie_review DESC
+	]]>
+	</select>
+	
+	<select id="getPageCount" resultType="int">
+	<![CDATA[
+		SELECT CEIL(COUNT(*)/10) FROM movie_review
+	]]>			
+	</select>
+	
+	
+	
+	<select id="selectByNo" resultType="com.bbq.fundmovie.vo.ReviewVo">
+	<![CDATA[
+		select * from movie_review where movie_review_no = #{movie_review_no}
+	]]>
+	</select>
+	
+	<insert id="insertMovieReview">
+	<![CDATA[
+	INSERT INTO movie_review VALUES(
+		movie_review_seq.nextval,
+		#{movie_no},
+		#{user_no},
+		#{movie_review_title},
+		#{movie_review_content},
+		0,
+		#{movie_review_rating},
+		SYSDATE
+	)
+	]]>
+	</insert>
+	
+	<update id="increaseReviewCount">
+	<![CDATA[
+	UPDATE movie_review
+		SET movie_review_readcount = movie_review_readcount +1
+		WHERE movie_review_no = #{movie_review_no}
+	]]>
+	</update>
+	
+	<delete id="deleteReviewNo">
+		<![CDATA[
+		delete from movie_review where movie_review_no = #{movie_review_no}
+		]]>		
+	</delete>
+	
+	<update id ="reviewUpdate">
+		<![CDATA[
+		update movie_review
+   			set movie_review_title = #{movie_review_title},
+        		movie_review_content = #{movie_review_content}
+        	where movie_review_no =#{movie_review_no}
+		]]>
+		
+	</update>
+
+</mapper>

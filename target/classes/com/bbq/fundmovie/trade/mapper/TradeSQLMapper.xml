@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbq.fundmovie.trade.mapper.TradeSQLMapper">
+
+	<select id="createKey" resultType="int">
+	<![CDATA[
+		SELECT Trade_seq.nextval FROM Dual
+	]]>
+	</select>
+
+	<!-- 1. trade 글쓰기 -->
+	<insert id="tradeInsert">
+		<![CDATA[
+			INSERT INTO Trade VALUES(
+					#{trade_no},
+					#{user_no},
+					#{trade_headline_no},
+					#{trade_title},
+					#{trade_content},
+					#{trade_money},
+					'N',
+					0,
+					SYSDATE
+				)
+		]]>
+	</insert>
+
+	<!--2. trade 메인화면 보기 -->
+	<select id="tradeSelectAll" resultType="com.bbq.fundmovie.vo.TradeVo">
+		<![CDATA[
+			SELECT * 
+			FROM Trade 
+			ORDER BY Trade_no DESC
+		]]>
+	</select>
+
+	<!-- 3. trade no별 글읽기 -->
+	<select id="tradeSelectByNo" resultType="com.bbq.fundmovie.vo.TradeVo">
+		<![CDATA[			
+			SELECT * 
+			FROM Trade 
+			WHERE trade_no = #{trade_no}
+		]]>
+	</select>
+		
+
+	<!-- 4. trade 글 수정 -->
+	<update id="tradeContentUpdate">
+		<![CDATA[
+			UPDATE Trade
+			SET trade_title = #{trade_title}, trade_content = #{trade_content}, trade_money = #{trade_money}
+			WHERE trade_no = #{trade_no}
+		]]>
+	</update>
+	<!-- 5. trade 글 삭제 -->
+	<delete id="tradeContentDelete">
+		<![CDATA[
+			DELETE 
+			FROM Trade
+			WHERE trade_no = #{no}
+		]]>
+	</delete>
+
+	<!-- 6. trade 조회수 증가 -->
+	<update id="tradeReadCount">
+		<![CDATA[
+			UPDATE Trade
+			SET trade_readcount = trade_readcount+1
+			WHERE trade_no = #{trade_no}
+		]]>
+	</update>
+
+	<!-- 7. trade 거래완료 -->
+	<update id="tradeComplete">
+		<![CDATA[
+			UPDATE Trade
+			SET trade_complete = 'Y'
+			WHERE trade_no = #{trade_no}
+		]]>
+	</update>
+
+
+
+	<!-- 0. 댓글보기 -->
+	<select id="tradeCommentSelectByNo" resultType="com.bbq.fundmovie.vo.TradeCommentVo">
+		<![CDATA[
+			SELECT * 
+			FROM Trade_comment 
+			WHERE trade_no=#{trade_no} 
+			ORDER BY trade_comment_no ASC
+		]]>
+	</select>
+	
+	<!-- 1. trade 댓글 쓰기 -->
+	<insert id="tradeCommentInsert">
+		<![CDATA[
+			INSERT INTO Trade_comment VALUES(
+				Trade_comment_seq.nextval,
+				#{trade_no},
+				#{user_no},
+				#{trade_comment},
+				SYSDATE
+			)
+		]]>
+	</insert>
+
+	<!-- 2. trade 댓글 수정 -->
+	<update id="tradeCommentUpdate">
+		<![CDATA[
+			UPDATE Trade_comment 
+			SET trade_comment 
+			WHERE trade_comment_no AND trade_no
+		]]>
+	</update>
+	<!-- 3. trade 댓글 삭제 -->
+	<delete id="tradeCommentDelete">
+		<![CDATA[
+			DELETE 
+			FROM Trade_comment 
+			WHERE trade_comment_no=#{no}
+		]]>
+	</delete>
+	
+	
+	
+	<!-- 1. trade 말머리 선택하기 -->
+	<select id="tradeHeadlineSelect" resultType="com.bbq.fundmovie.vo.TradeHeadlineVo">
+		<![CDATA[
+			SELECT * 
+			FROM Trade_headline 
+			WHERE trade_headline_no = #{trade_headline_no}
+		]]>
+	</select>
+	
+	
+	
+	
+	<!-- 1. trade 좋아요/찜하기 중복확인 -->
+	<select id="tradeLikeCheck" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM trade_like
+			WHERE trade_no = #{trade_no} AND user_no = #{user_no}
+			
+		]]>
+	</select>	
+	
+	<!-- 2. trade 좋아요/찜하기  누르기-->
+	<insert id="tradeLikeInsert">
+		<![CDATA[
+			INSERT INTO trade_like VALUES(
+				trade_like_seq.nextval,
+				#{trade_no},
+				#{user_no}
+			)
+		]]>
+	</insert>
+	
+	<!-- 3. trade 좋아요/찜하기 취소하기  -->
+	<delete id="tradeLikeDelete">
+		<![CDATA[
+			DELETE 
+			FROM trade_like 
+			WHERE user_no = #{user_no}
+			AND trade_no = #{trade_no}
+		]]>
+	</delete>
+	
+	<!-- 4. trade 좋아요/찜하기 페이지당 갯수 -->
+	<select id="tradeLikeCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM trade_like
+			WHERE trade_no = #{trade_no}
+		]]>
+	</select>
+	
+	<!-- 1. trade 이미지 첨부 -->
+	<insert id="tradeImageInsert">
+		<![CDATA[
+			INSERT INTO Trade_image VALUES(
+				Trade_image_seq.nextval,
+				#{trade_no},
+				#{trade_image_link}
+			)
+		]]>
+	</insert>
+	
+	<!-- 2. trade 이미지 뽑아내기 -->
+	<select id="tradeImageSelectByNo" resultType="com.bbq.fundmovie.vo.TradeImageVo">
+		<![CDATA[
+			SELECT * 
+			FROM Trade_Image 
+			WHERE trade_no = #{trade_no}
+		]]>
+	</select>
+</mapper>
